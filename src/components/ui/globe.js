@@ -12,26 +12,23 @@ const RING_PROPAGATION_SPEED = 3;
 const aspect = 1.2;
 const cameraZ = 300;
 
-let numbersOfRings = [0];
-
-export function Globe({ globeConfig, data }) {
+const Globe = ({ globeConfig, data }) => {
   const [globeData, setGlobeData] = useState(null);
-
-  const globeRef = (useRef < ThreeGlobe) | (null > null);
+  const globeRef = useRef(null);
 
   const defaultProps = {
-    pointSize: 9,
+    pointSize: 1,
     atmosphereColor: "#ffffff",
     showAtmosphere: true,
     atmosphereAltitude: 0.1,
-    polygonColor: "rgba(235,215,245,0.7)",
+    polygonColor: "rgba(255,255,255,0.7)",
     globeColor: "#1d072e",
-    emissive: "#ffffff",
-    emissiveIntensity: 0.12,
+    emissive: "#000000",
+    emissiveIntensity: 0.1,
     shininess: 0.9,
-    arcTime: 20,
+    arcTime: 2000,
     arcLength: 0.9,
-    rings: 100,
+    rings: 1,
     maxRings: 3,
     ...globeConfig,
   };
@@ -93,9 +90,7 @@ export function Globe({ globeConfig, data }) {
         .showAtmosphere(defaultProps.showAtmosphere)
         .atmosphereColor(defaultProps.atmosphereColor)
         .atmosphereAltitude(defaultProps.atmosphereAltitude)
-        .hexPolygonColor((e) => {
-          return defaultProps.polygonColor;
-        });
+        .hexPolygonColor(() => defaultProps.polygonColor);
       startAnimation();
     }
   }, [globeData]);
@@ -110,16 +105,12 @@ export function Globe({ globeConfig, data }) {
       .arcEndLat((d) => d.endLat * 1)
       .arcEndLng((d) => d.endLng * 1)
       .arcColor((e) => e.color)
-      .arcAltitude((e) => {
-        return e.arcAlt * 1;
-      })
-      .arcStroke((e) => {
-        return [0.32, 0.28, 0.3][Math.round(Math.random() * 2)];
-      })
+      .arcAltitude((e) => e.arcAlt * 1)
+      .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
       .arcDashLength(defaultProps.arcLength)
       .arcDashInitialGap((e) => e.order * 1)
       .arcDashGap(15)
-      .arcDashAnimateTime((e) => defaultProps.arcTime);
+      .arcDashAnimateTime(() => defaultProps.arcTime);
 
     globeRef.current
       .pointsData(data)
@@ -143,7 +134,7 @@ export function Globe({ globeConfig, data }) {
 
     const interval = setInterval(() => {
       if (!globeRef.current || !globeData) return;
-      numbersOfRings = genRandomNumbers(
+      const numbersOfRings = genRandomNumbers(
         0,
         data.length,
         Math.floor((data.length * 4) / 5)
@@ -164,9 +155,9 @@ export function Globe({ globeConfig, data }) {
       <threeGlobe ref={globeRef} />
     </>
   );
-}
+};
 
-export function WebGLRendererConfig() {
+const WebGLRendererConfig = () => {
   const { gl, size } = useThree();
 
   useEffect(() => {
@@ -176,9 +167,9 @@ export function WebGLRendererConfig() {
   }, []);
 
   return null;
-}
+};
 
-export function World(props) {
+const World = (props) => {
   const { globeConfig } = props;
   const scene = new Scene();
   scene.fog = new Fog(0xffffff, 400, 2000);
@@ -212,9 +203,9 @@ export function World(props) {
       />
     </Canvas>
   );
-}
+};
 
-export function hexToRgb(hex) {
+const hexToRgb = (hex) => {
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
   hex = hex.replace(shorthandRegex, function (m, r, g, b) {
     return r + r + g + g + b + b;
@@ -228,9 +219,9 @@ export function hexToRgb(hex) {
         b: parseInt(result[3], 16),
       }
     : null;
-}
+};
 
-export function genRandomNumbers(min, max, count) {
+const genRandomNumbers = (min, max, count) => {
   const arr = [];
   while (arr.length < count) {
     const r = Math.floor(Math.random() * (max - min)) + min;
@@ -238,4 +229,6 @@ export function genRandomNumbers(min, max, count) {
   }
 
   return arr;
-}
+};
+
+export { Globe, WebGLRendererConfig, World, hexToRgb, genRandomNumbers };
